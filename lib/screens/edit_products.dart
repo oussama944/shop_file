@@ -35,8 +35,6 @@ class _EditProducScreenState extends State<EditProducScreen> {
 
   @override
   void didChangeDependencies() {
-
-
     if (_isInit) {
       final productId = ModalRoute.of(context)?.settings.arguments as String;
       if (productId != "null") {
@@ -79,10 +77,11 @@ class _EditProducScreenState extends State<EditProducScreen> {
                   content: Text('Une erreur c\'est produite '),
                   actions: <Widget>[
                     TextButton(
-                        onPressed: () {
-                          Navigator.of(ctx).pop();
-                        },
-                        child: Text('OK'))
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                    )
                   ],
                 ));
       }
@@ -95,13 +94,10 @@ class _EditProducScreenState extends State<EditProducScreen> {
       //
     }
 
-
     setState(() {
       _isLoading = false;
     });
     Navigator.of(context).pop();
-
-
   }
 
   @override
