@@ -13,6 +13,11 @@ class ProductsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    width = width/100 -2;
+    print(width);
+    final int test = width.round();
+    print(" taille : $test");
     final productData = Provider.of<Products>(context);
     final products = showOnlyFav? productData.favoriteItems : productData.items;
     return GridView.builder(
@@ -26,8 +31,8 @@ class ProductsGrid extends StatelessWidget {
           //products[i].imageUrl,
         ),
       ),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+      gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: test ,
           childAspectRatio: 3 / 2,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10),

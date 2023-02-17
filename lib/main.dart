@@ -10,6 +10,7 @@ import 'package:shop_file/screens/edit_products.dart';
 import 'package:shop_file/screens/orders_screens.dart';
 import 'package:shop_file/screens/products_detail_screen.dart';
 import 'package:shop_file/screens/products_overview_screen.dart';
+import 'package:shop_file/screens/splash_screen.dart';
 import 'package:shop_file/screens/user_products_screen.dart';
 
 void main() {
@@ -26,16 +27,20 @@ class MyApp extends StatelessWidget {
           create: (ctx) => Auth(),
         ),
         ChangeNotifierProxyProvider<Auth, Products>(
-          create: (_) => Products(null, []),//error here saying 3 positional arguments expected,but 0 found.
-          update: (ctx, auth, previusProducts) => Products(auth.token,
+          create: (_) => Products(null, null,
+              []), //error here saying 3 positional arguments expected,but 0 found.
+          update: (ctx, auth, previusProducts) => Products(
+              auth.token,
+              auth.userId,
               previusProducts == null ? [] : previusProducts.items),
         ),
         ChangeNotifierProvider(
           create: (ctx) => Cart(),
         ),
         ChangeNotifierProxyProvider<Auth, Orders>(
-          create: (_) => Orders(null, []),//error here saying 3 positional arguments expected,but 0 found.
-          update: (ctx, auth, previusOrder) => Orders(auth.token,
+          create: (_) => Orders(null, null,
+              []), //error here saying 3 positional arguments expected,but 0 found.
+          update: (ctx, auth, previusOrder) => Orders(auth.token, auth.userId,
               previusOrder == null ? [] : previusOrder.orders),
         ),
       ],
@@ -47,7 +52,15 @@ class MyApp extends StatelessWidget {
                 .copyWith(secondary: Colors.blueAccent),
             fontFamily: 'Lato',
           ),
-          home: auth.isAuth ? ProduductsOverviewScreen() : AuthScreen(),
+          home: auth.isAuth
+              ? ProduductsOverviewScreen()
+              : FutureBuilder(
+                  future: auth.tryAutoLogin(),
+                  builder: (ctx, authResult) =>
+                      authResult.connectionState == ConnectionState.waiting
+                          ? SplashScreen()
+                          : AuthScreen(),
+                ),
           routes: {
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
             CartScreen.routeName: (ctx) => CartScreen(),

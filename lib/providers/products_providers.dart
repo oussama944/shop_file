@@ -42,8 +42,9 @@ class Products with ChangeNotifier {
   ];
 
   final String? authToken;
+  final String? userId;
 
-  Products(this.authToken, this._items);
+  Products(this.authToken, this.userId ,this._items,);
 
 
   List<Product> get favoriteItems {
@@ -54,9 +55,10 @@ class Products with ChangeNotifier {
     return [..._items];
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString = filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
     final url = Uri.parse(
-        'https://fluttershopfile-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken');
+        'https://fluttershopfile-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken&$filterString');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -66,14 +68,20 @@ class Products with ChangeNotifier {
         return;
       }
 
+      final urlFav = Uri.parse(
+          'https://fluttershopfile-default-rtdb.europe-west1.firebasedatabase.app/userFavorites/$userId.json?auth=$authToken'
+    );
+      final favoriteResponse = await http.get(urlFav);
+      final favoriteData = jsonDecode(favoriteResponse.body);
+
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(Product(
             id: prodId,
             title: prodData['title'],
             description: prodData['description'],
             price: prodData['price'],
-            imageUrl: prodData['imageUrl'],
-            isFavorite: prodData['isFavorite']));
+            isFavorite: favoriteData == null ? false: favoriteData[prodId] ?? false,
+            imageUrl: prodData['imageUrl'],));
       });
       _items = loadedProducts;
       notifyListeners();
@@ -94,7 +102,7 @@ class Products with ChangeNotifier {
           'description': product.description,
           'price': product.price,
           'imageUrl': product.imageUrl,
-          'isFavorite': product.isFavorite
+          'creatorId' : userId,
         }),
       );
 
